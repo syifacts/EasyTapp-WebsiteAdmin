@@ -88,16 +88,6 @@ const rfidPage = {
         <div id="popup-notif" class="popup-notif">
   <span id="popup-message"></span>
 </div>
-
-<div id="confirm-popup" class="popup hidden">
-  <p>Yakin ingin menghapus?</p>
-  <div class="popup-actions">
-    <button id="confirm-yes">Ya</button>
-    <button id="confirm-no">Batal</button>
-  </div>
-</div>
-
-
       </section>
     `;
   },
@@ -220,7 +210,7 @@ data.forEach(item => {
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const id = e.target.dataset.id;
-        if (!confirm('Yakin ingin menghapus?')) return;
+        //if (!confirm('Yakin ingin menghapus?')) return;
 
         const { error } = await supabase.from('rfid_tag').delete().eq('id', id);
        if (error) {
