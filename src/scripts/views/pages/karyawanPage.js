@@ -125,7 +125,7 @@ const karyawanPage = {
   },
 
   async afterRender() {
-    const pageSize = 5;
+    const pageSize = 10;
     let currentPage = 1;
     let allEmployees = []; // Menyimpan semua data untuk pencarian global
   

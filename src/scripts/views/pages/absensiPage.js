@@ -152,7 +152,7 @@ const absensiPage = {
   },
 
   async afterRender() {
-    const pageSize = 5;
+    const pageSize = 10;
     let currentPage = 1;
     let deleteId = null;
 
@@ -327,9 +327,9 @@ const absensiPage = {
       if (empErr || !employee) {
         return absensiPage.showPopup('ID karyawan tidak ditemukan. Mohon periksa kembali.', 'error');
       }
+let check_in = checkInTime ? `${date}T${checkInTime}` : null;
+let check_out = checkOutTime ? `${date}T${checkOutTime}` : null;
 
-      let check_in = checkInTime ? `${date}T${checkInTime}:00` : null;
-      let check_out = checkOutTime ? `${date}T${checkOutTime}:00` : null;
 
       if (status === 'Tidak Hadir') {
         check_in = null;
