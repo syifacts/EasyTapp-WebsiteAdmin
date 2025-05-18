@@ -185,10 +185,9 @@ const absensiPage = {
 
       data.forEach(abs => {
         const imageUrl = abs.image || null;
-   const imageTag = imageUrl 
-  ? `<img src="${imageUrl}" alt="Foto Absensi" style="width:200px; height:200px; object-fit: cover; border-radius:4px;" />`
-  : '-';
-
+    const imageTag = imageUrl 
+      ? `<img src="${imageUrl}" alt="Foto Absensi" style="width:100px; height:auto; border-radius:4px;" />`
+      : '-';
 
         const row = document.createElement('tr');
         row.innerHTML = `
