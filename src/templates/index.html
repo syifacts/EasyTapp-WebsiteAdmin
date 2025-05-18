@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="icons/logo.png" type="image/png">
+  <title>EasyTapp</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div id="mainApp">
+    <div id="appWrapper" class="d-flex">
+      <!-- Sidebar -->
+      <nav id="navigationDrawer" class="sidebar p-3">
+        <li class="nav-item">
+          <a href="#/dashboard" class="nav-link active">
+            <i class="bi bi-grid-fill"></i> Dashboard
+          </a>
+        </li>
+
+        <p class="nav-section">DATA ABSENSI</p>
+        <li class="nav-item">
+          <a href="#/karyawan" class="nav-link">
+            <i class="bi bi-person-badge"></i> Karyawan
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#/absensi" class="nav-link">
+            <i class="bi bi-calendar-event"></i> Absensi
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#/rfid" class="nav-link">
+            <i class="bi bi-calendar-event"></i> RFID
+          </a>
+        </li>
+
+
+        <p class="nav-section">PENGATURAN</p>
+        <li class="nav-item">
+          <a href="#/akun" class="nav-link">
+            <i class="bi bi-person-gear"></i> Akun
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="content flex-grow-1 p-4">
+      <!-- Konten akan di-render App.js -->
+    </main>
+  </div>
+
+  <script src="app.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

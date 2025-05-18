@@ -1,0 +1,1163 @@
+/* Default body */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fc;
+}
+
+/* Hanya untuk halaman login */
+body.login-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #a8dadc, #457b9d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.6);
+  padding: 40px 30px;
+  border-radius: 20px;
+  margin-top: 100px;
+  box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  text-align: center;
+}
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  background-color: #3a8c9e;
+  border-radius: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  position: relative;
+  padding-bottom: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: bold;
+}
+
+.login-container h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background-color: #333;
+}
+.login-btn {
+  background-color: #3a8c9e; 
+  color: white;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 50px; 
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-transform: uppercase;
+  font-weight: bold;         
+  transition: background-color 0.3s ease;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  font-size: 14px;
+}
+
+.input-icon, .input-icon2 {
+  position: relative;
+}
+
+.input-icon input {
+  padding-left: 40px;
+}
+.input-icon2 input {
+  padding-left: 40px;
+}
+
+.input-icon::before {
+  content: "🔒";
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #999;
+}
+
+.input-icon2::before {
+  content: "👤";
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #999;
+}
+
+
+
+.login-btn:hover {
+  background-color: #47a9bb;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 200px;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.popup p {
+  margin: 10px 0;
+}
+
+.popup button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup button:hover {
+  background-color: #45a049;
+}
+
+/* Success Popup */
+.popup-success {
+  background-color: #4CAF50; /* Green for success */
+}
+
+/* Error Popup */
+.popup-error {
+  background-color: #F44336; /* Red for error */
+}
+
+.popup.show {
+  display: block;
+  opacity: 1;
+}
+
+.popup-error button {
+  background-color: #F44336; 
+}
+
+.popup-error button:hover {
+  background-color: #e53935; 
+}
+
+.popup-success button {
+  background-color: #4CAF50; 
+}
+
+.popup-success button:hover {
+  background-color: #388E3C; /* Darker green on hover */
+}
+
+
+/* Layout utama */
+.d-flex {
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #4fc3f7;
+  color: white;
+  height: 100vh;
+  position: fixed;
+}
+
+.sidebar .nav-link {
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2); /* background lebih terang */
+  color: #fff !important; /* pastikan tulisan putih */
+  font-weight: 700; /* lebih tebal */
+  border-radius: 4px; /* supaya terlihat tombol */
+}
+
+
+.sidebar .nav-section {
+  font-weight: bold;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+.sidebar .flex-column {
+padding-top: 20px;
+}
+.sidebar-clock {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 12px 0;
+  text-align: justify;
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  border-top: 1px solid white;
+}
+
+
+/* Main content */
+.content {
+  margin-left: 130px;
+  background-color: #f8f9fc;
+  min-height: 100vh;
+}
+.login-page .content {
+  margin-left: 0;
+  background-color: transparent;
+}
+
+/* Card */
+.dashboard-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 250px;
+}
+
+.card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.card-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.total-karyawan {
+  border-left: 6px solid #2196f3;
+}
+
+.absensi-hari-ini {
+  border-left: 6px solid #4caf50;
+}
+
+.jadwal-masuk {
+  border-left: 6px solid #00bcd4;
+}
+
+.jadwal-pulang {
+  border-left: 6px solid #ffc107;
+}
+
+h2 {
+  color: #333;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Manajemen Jadwal */
+h5 {
+  color: #333;
+  margin-top: 50px;
+  margin-bottom: 1.5rem;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Manajemen Jadwal - Font lebih kecil */
+h5 + .card-title {
+  font-size: 10sp;  /* Mengurangi ukuran font untuk manajemen jadwal */
+  color: #888;
+}
+
+/* Layout untuk Card Jadwal Masuk dan Jadwal Pulang berdampingan */
+.card.jadwal-masuk,
+.card.jadwal-pulang {
+  display: inline-flex;
+  flex: 1 1 48%;  /* Memberi ruang untuk kedua card supaya berdampingan */
+  gap: 1rem;
+  margin-top: 1rem;  /* Jarak antar card */
+}
+
+.card.jadwal-masuk,
+.card.jadwal-pulang {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 1rem;
+  color: #555;
+}
+
+input[type="time"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#jamMasukDisplay,
+#jamPulangDisplay {
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.karyawan {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-left: 120px;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+
+#btn-tambah {
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#btn-tambah:hover {
+  background-color: #27ae60;
+}
+
+#search-karyawan {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 250px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.data-table th, .data-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.data-table th {
+  background-color: #3498db;
+  color: white;
+}
+
+.data-table td {
+  background-color: #f9f9f9;
+}
+
+.data-table tr:nth-child(even) td {
+  background-color: #f2f2f2;
+}
+
+.data-table td button {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s ease;
+}
+
+.data-table td button:hover {
+  background-color: #e67e22;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #2980b9;
+}
+
+.pagination .btn-prev {
+  border-radius: 4px 0 0 4px;
+}
+
+.pagination .btn-next {
+  border-radius: 0 4px 4px 0;
+}
+/* Form overlay saat tambah data */
+.form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.form-overlay.show {
+  display: flex;
+}
+
+/* Container Form Tambah Data */
+.form-container {
+  background-color: #fff;
+  font-weight: bold;
+  padding: 2rem;
+  width: 80%;
+  max-width: 800px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+#form-tambah-absensi label {
+  display: block;
+  margin-bottom: 4px; /* Jarak antara label dan input */
+  font-weight: bold;
+}
+
+#form-tambah-absensi input,
+#form-tambah-absensi select {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px; /* Jarak antar input */
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* Style input dan label */
+.form-container label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.form-container input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.form-container #status {
+  margin-top: 10px;
+}
+
+/* Tombol dalam form */
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  
+}
+
+.btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: #fff;
+  min-width: 100px;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-cancel {
+  background-color: #dc3545;
+  color: #fff;
+  width: 100px;
+}
+
+.btn-cancel:hover {
+  background-color: #c82333;
+}
+
+.absensi {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-left: 120px;
+  margin-top: 30px;
+}
+
+.absensi h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.tabs a {
+  text-decoration: none;   
+  color: #4E73DF;
+  font-family: 'Nunito', sans-serif;          
+  font-weight: bold;     
+  background: none;        
+  border: none;            
+  padding: 0;              
+  cursor: default;         
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* transparansi hitam */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-overlay.show {
+  display: flex; /* akan mengaktifkan flex untuk menengahkan isi */
+}
+
+.modal-container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Opsional: efek transisi saat modal muncul */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.account {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+}
+
+.account h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+#form-account {
+  display: flex;
+  flex-direction: column;
+}
+
+#form-account label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+#form-account input[type="text"] {
+  padding: 0.75rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  transition: border 0.3s;
+}
+
+#form-account input[type="text"]:focus {
+  border-color: #4CAF50;
+  outline: none;
+  background-color: #fff;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+   flex: 1;
+}
+
+.btn-save {
+  padding: 0.75rem 1.5rem;
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-save:hover {
+  background-color: #45a049;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.popup-overlay.show {
+  display: flex;
+}
+
+.popup-container {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.popup-container .btn-close-popup {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.popup-container.success {
+  border: 2px solid green;
+}
+
+.popup-container.error {
+  border: 2px solid red;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-container {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 300px;
+}
+
+.modal-container button {
+  margin-top: 15px;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.popup-actions .btn-danger {
+  background-color: #27ae60;
+  color: white;
+}
+
+.popup-actions .btn-danger:hover {
+  background-color: #27ae60;
+}
+
+/* Button Cancel */
+.popup-actions .btn-cancel {
+  background-color: #d9534f;
+  color: white;
+}
+
+.popup-actions .btn-cancel:hover {
+  background-color: #d9534f;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+}
+
+.popup-content h2 {
+  margin-bottom: 20px;
+  
+}
+
+.popup-content p {
+  margin-bottom: 20px;
+  color: #212529;
+}
+
+#overlay-edit-checkout.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#overlay-edit-checkout.show {
+  display: flex;
+}
+
+.overlay-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  font-family: Arial, sans-serif;
+}
+
+.overlay-content h3 {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #212529;
+  font-size: 16px;
+}
+
+.form-group span {
+  color: #212529;
+  
+}
+
+input[type="time"],
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-group .btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Jarak antara label dan input */
+}
+.rfid-page {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-left: 120px;
+}
+
+.rfid-page h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.rfid-page form {
+  margin-bottom: 20px;
+}
+
+.rfid-page label {
+  display: block;
+  margin-top: 10px;
+}
+
+.rfid-page input, .rfid-page select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.rfid-page button[type="submit"] {
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.rfid-page button[type="submit"]:hover {
+  background-color: #27ae60;
+}
+
+.rfid-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.rfid-page th, .rfid-page td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.rfid-page th {
+  background-color: #3498db;
+  color: white;
+}
+
+.rfid-page td {
+  background-color: #f9f9f9;
+}
+
+.rfid-page tr:nth-child(even) td {
+  background-color: #f2f2f2;
+}
+
+.rfid-page td button {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s ease;
+}
+
+.rfid-page td button:hover {
+  background-color: #e67e22;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.pagination button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+.pagination button:hover {
+  background-color: #2980b9;
+}
+
+.pagination .btn-prev {
+  border-radius: 4px 0 0 4px;
+}
+
+.pagination .btn-next {
+  border-radius: 0 4px 4px 0;
+}
+#search-status {
+    padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 250px;
+}
+/* Modal overlay (tetap full screen untuk latar gelap) */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Sembunyikan saat tidak aktif */
+.hidden {
+  display: none;
+}
+
+/* Modal form container di tengah dan tidak full */
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  width: 100%;
+  max-width: 450px; /* << Tidak full, dibatasi max lebar */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: slideDown 0.3s ease;
+  position: relative;
+}
+
+/* Animasi modal turun */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tombol close */
+.close-modal {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Form style */
+#rfid-form label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+#rfid-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.form-actions2 {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-rfid-save,
+.btn-rfid-cancel {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 100px;
+  text-align: center;
+}
+
+.btn-rfid-save {
+  background-color: #28a745; /* Hijau */
+  color: white;
+}
+
+.btn-rfid-save:hover {
+  background-color: #218838;
+}
+
+.btn-rfid-cancel {
+  background-color: #dc3545; /* Merah */
+  color: white;
+}
+
+.btn-rfid-cancel:hover {
+  background-color: #c82333;
+}
+#popup-notif {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #4caf50; /* warna hijau untuk sukses */
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#popup-notif.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#popup-notif.error {
+  background-color: #f44336; /* warna merah untuk error */
+}
+
+.popup.hidden {
+  display: none;
+}
