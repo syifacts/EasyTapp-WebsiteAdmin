@@ -28,6 +28,7 @@ const absensiPage = {
               <th>Check In</th>
               <th>Check Out</th>
               <th>Status</th>
+              <th>Image</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -158,7 +159,7 @@ const absensiPage = {
 
     const loadData = async (page = 1, filterDate = null) => {
       let query = supabase
-        .from('attendance')
+        .from('attendance_with_image')
         .select('*')
         .order('date', { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
@@ -183,6 +184,12 @@ const absensiPage = {
       }
 
       data.forEach(abs => {
+        const imageUrl = abs.image || null;
+   const imageTag = imageUrl 
+  ? `<img src="${imageUrl}" alt="Foto Absensi" style="width:200px; height:200px; object-fit: cover; border-radius:4px;" />`
+  : '-';
+
+
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${abs.employee_id}</td>
@@ -190,6 +197,7 @@ const absensiPage = {
           <td>${abs.check_in ? abs.check_in.slice(11, 19) : '-'}</td>
           <td>${abs.check_out ? abs.check_out.slice(11, 19) : '-'}</td>
           <td>${abs.status}</td>
+           <td>${imageTag}</td>
           <td>
             <button class="action-btn detail-btn" data-id="${abs.id}"><i class="fa fa-eye"></i></button>
             <button class="action-btn edit-btn" data-id="${abs.id}"><i class="fa fa-edit"></i></button>
