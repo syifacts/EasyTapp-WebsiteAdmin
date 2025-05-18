@@ -30,9 +30,13 @@ Hanya admin yang sudah login yang dapat mengakses dashboard.
 
 ## 🔧 Cara Menjalankan (Development)
 Jalankan command berikut:
+```bash
 npm install
 npm run start-dev
+```
 
 ## 🏁 Build untuk Produksi
 Jalankan command berikut:
+```bash
 npm run build
+```
