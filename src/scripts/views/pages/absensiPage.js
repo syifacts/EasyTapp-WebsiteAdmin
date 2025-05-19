@@ -283,6 +283,99 @@ document.getElementById('image-modal').addEventListener('click', (e) => {
     };
 
     await loadData(currentPage);
+    const now = new Date();
+async function autoFillAbsensiTidakHadir() {
+  const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
+
+  // Ambil semua ID karyawan
+  const { data: allEmployees, error: empError } = await supabase
+    .from('employees')
+    .select('id');
+
+  if (empError) {
+    absensiPage.showPopup('Gagal mengambil data karyawan.', 'error');
+    return;
+  }
+
+  // Ambil data absensi hari ini
+  const { data: todayAbsensi, error: absensiError } = await supabase
+    .from('attendance')
+    .select('employee_id, status')
+    .eq('date', today);
+
+  if (absensiError) {
+    absensiPage.showPopup('Gagal mengambil data absensi.', 'error');
+    return;
+  }
+
+  const sudahAbsenIds = todayAbsensi.map(a => a.employee_id);
+  const belumAbsen = allEmployees.filter(e => !sudahAbsenIds.includes(e.id));
+
+  if (belumAbsen.length === 0) return; // Semua sudah absen
+
+  const newRecords = belumAbsen.map(e => ({
+    employee_id: e.id,
+    date: today,
+    check_in: null,
+    check_out: null,
+    status: 'Tidak Hadir'
+  }));
+
+  const { error: insertError } = await supabase
+    .from('attendance')
+    .upsert(newRecords, { onConflict: ['employee_id', 'date'] });
+
+  if (insertError) {
+    absensiPage.showPopup('Gagal mengisi absensi otomatis: ' + insertError.message, 'error');
+  } else {
+    absensiPage.showPopup('Absensi otomatis "Tidak Hadir" berhasil diisi.', 'success');
+    await loadData(currentPage); // Refresh tampilan
+  }
+}
+
+function isAlreadyAutoFilledToday() {
+  const lastRun = localStorage.getItem('autoFillAbsensiLastRun');
+  const today = new Date().toISOString().slice(0, 10);
+  return lastRun === today;
+}
+
+async function runAutoFillIfNeeded() {
+  const now = new Date();
+
+  if (isAlreadyAutoFilledToday()) {
+    // Sudah pernah isi hari ini, langsung return tanpa notifikasi
+    return;
+  }
+
+  const targetHour = 23;
+  const targetMinute = 0;
+  const targetSecond = 0;
+
+  // Jika sekarang sudah lewat jam 09:48:00
+  if (
+    now.getHours() > targetHour ||
+    (now.getHours() === targetHour && now.getMinutes() >= targetMinute)
+  ) {
+    await autoFillAbsensiTidakHadir();
+    localStorage.setItem('autoFillAbsensiLastRun', now.toISOString().slice(0, 10));
+  } else {
+    // Atur timer sampai jam 09:48:00 hari ini
+    const target = new Date();
+    target.setHours(targetHour, targetMinute, targetSecond, 0);
+    const msUntilTarget = target.getTime() - now.getTime();
+
+    setTimeout(async () => {
+      if (!isAlreadyAutoFilledToday()) {
+        await autoFillAbsensiTidakHadir();
+        localStorage.setItem('autoFillAbsensiLastRun', new Date().toISOString().slice(0, 10));
+      }
+    }, msUntilTarget);
+  }
+}
+
+// Jalankan saat halaman dimuat
+runAutoFillIfNeeded();
+
 
     // Add event listener for form edit submission
     document.getElementById('form-edit-checkout').addEventListener('submit', async (e) => {
@@ -366,6 +459,21 @@ let check_out = checkOutTime ? `${date}T${checkOutTime}` : null;
         check_in = null;
         check_out = null;
       }
+// Cek apakah absensi sudah ada sebelumnya
+const { data: existingAbsensi, error: absensiCheckError } = await supabase
+  .from('attendance')
+  .select('id')
+  .eq('employee_id', employee_id)
+  .eq('date', date)
+  .maybeSingle(); // karena 1 hari seharusnya 1 record
+
+if (absensiCheckError) {
+  return absensiPage.showPopup('Gagal memeriksa absensi sebelumnya.', 'error');
+}
+
+if (existingAbsensi) {
+  return absensiPage.showPopup('Karyawan ini sudah mengisi absensi di tanggal tersebut.', 'error');
+}
 
       const { error } = await supabase.from('attendance').upsert([{
         employee_id, date, check_in, check_out, status
@@ -478,6 +586,12 @@ let check_out = checkOutTime ? `${date}T${checkOutTime}` : null;
         document.getElementById('popup-confirm-delete').classList.remove('show');
       }
     });
+    const alreadyFilledKey = `auto-fill-${now.toISOString().slice(0, 10)}`;
+if (!localStorage.getItem(alreadyFilledKey)) {
+  await autoFillAbsensiTidakHadir();
+  localStorage.setItem(alreadyFilledKey, 'true');
+}
+
   },
 
   showPopup(message, type = 'success') {
@@ -501,6 +615,7 @@ let check_out = checkOutTime ? `${date}T${checkOutTime}` : null;
       popup.classList.remove('show');
     }, 3000);
   }
+  
 };
 
 export default absensiPage;
