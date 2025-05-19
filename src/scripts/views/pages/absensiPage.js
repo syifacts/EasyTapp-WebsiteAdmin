@@ -148,6 +148,11 @@ const absensiPage = {
     </div>
   </div>
 </div>
+<!-- Modal Overlay -->
+<div id="image-modal" class="modal-overlay" style="display:none;">
+  <span class="close-modal" id="close-modal">&times;</span>
+  <img class="modal-content" id="modal-image" />
+</div>
 
     `;
   },
@@ -214,6 +219,25 @@ const absensiPage = {
         .select('*', { count: 'exact' });
 
       document.getElementById('btn-next-absensi').disabled = currentPage * pageSize >= count;
+      tbody.querySelectorAll('img').forEach(img => {
+  img.addEventListener('click', () => {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    modalImg.src = img.src;
+    modal.style.display = 'flex';
+  });
+});
+document.getElementById('close-modal').addEventListener('click', () => {
+  document.getElementById('image-modal').style.display = 'none';
+});
+
+// Optional: klik luar modal juga bisa nutup
+document.getElementById('image-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'image-modal') {
+    document.getElementById('image-modal').style.display = 'none';
+  }
+});
+
     };
 
     // Function to show edit form
