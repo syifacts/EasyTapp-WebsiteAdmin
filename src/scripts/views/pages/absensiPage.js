@@ -284,20 +284,27 @@ document.getElementById('image-modal').addEventListener('click', (e) => {
 
     await loadData(currentPage);
     const now = new Date();
-async function autoFillAbsensiTidakHadir() {
-  const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
 
-  // Ambil semua ID karyawan
+// Helper: Mendapatkan waktu sekarang dalam format ISO UTC
+function getUTCISOString() {
+  return new Date().toISOString();
+}
+
+// Fungsi utama untuk mengisi absensi otomatis "Tidak Hadir"
+async function autoFillAbsensiTidakHadir() {
+  const today = new Date().toISOString().slice(0, 10); // format 'YYYY-MM-DD' UTC
+
+  // Ambil semua karyawan
   const { data: allEmployees, error: empError } = await supabase
     .from('employees')
     .select('id');
 
   if (empError) {
     absensiPage.showPopup('Gagal mengambil data karyawan.', 'error');
-    return;
+    return { error: empError };
   }
 
-  // Ambil data absensi hari ini
+  // Ambil absensi hari ini
   const { data: todayAbsensi, error: absensiError } = await supabase
     .from('attendance')
     .select('employee_id, status')
@@ -305,14 +312,15 @@ async function autoFillAbsensiTidakHadir() {
 
   if (absensiError) {
     absensiPage.showPopup('Gagal mengambil data absensi.', 'error');
-    return;
+    return { error: absensiError };
   }
 
+  // Filter karyawan yang belum absen
   const sudahAbsenIds = todayAbsensi.map(a => a.employee_id);
   const belumAbsen = allEmployees.filter(e => !sudahAbsenIds.includes(e.id));
+  if (belumAbsen.length === 0) return { error: null };
 
-  if (belumAbsen.length === 0) return; // Semua sudah absen
-
+  // Buat data untuk insert
   const newRecords = belumAbsen.map(e => ({
     employee_id: e.id,
     date: today,
@@ -321,61 +329,94 @@ async function autoFillAbsensiTidakHadir() {
     status: 'Tidak Hadir'
   }));
 
+  // Insert ke tabel attendance
   const { error: insertError } = await supabase
     .from('attendance')
     .upsert(newRecords, { onConflict: ['employee_id', 'date'] });
 
   if (insertError) {
+    console.error('Insert Absensi Error:', insertError);
     absensiPage.showPopup('Gagal mengisi absensi otomatis: ' + insertError.message, 'error');
-  } else {
-    absensiPage.showPopup('Absensi otomatis "Tidak Hadir" berhasil diisi.', 'success');
-    await loadData(currentPage); // Refresh tampilan
+    return { error: insertError };
   }
+
+  // Insert log auto-fill ke tabel auto_fill_logs
+  const logData = {
+    date: today,
+    done_at: getUTCISOString()
+  };
+
+  const { error: logError } = await supabase
+    .from('auto_fill_logs')
+    .insert([logData]);
+
+  if (logError) {
+    console.error('Log Auto-Fill Error:', logError);
+    absensiPage.showPopup('Gagal mencatat log auto-fill: ' + logError.message, 'error');
+    return { error: logError };
+  }
+
+  absensiPage.showPopup('Absensi otomatis "Tidak Hadir" berhasil diisi.', 'success');
+  await loadData(currentPage);
+  return { error: null };
 }
 
-function isAlreadyAutoFilledToday() {
-  const lastRun = localStorage.getItem('autoFillAbsensiLastRun');
+// Cek apakah auto-fill sudah dijalankan hari ini
+async function isAlreadyAutoFilledInDB() {
   const today = new Date().toISOString().slice(0, 10);
-  return lastRun === today;
+  const { data, error } = await supabase
+    .from('auto_fill_logs')
+    .select('id')
+    .eq('date', today)
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    console.error('Gagal cek log auto-fill:', error);
+    return false;
+  }
+  return !!data;
 }
 
+// Flag untuk memastikan hanya dijalankan sekali per hari
+let hasRunToday = false;
+
+// Jalankan auto-fill hanya jika jam 13:27 WIB dan belum dilakukan
 async function runAutoFillIfNeeded() {
-  const now = new Date();
+  try {
+    const nowUTC = new Date();
+    const nowWIBString = new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' });
+const nowWIB = new Date(nowWIBString);
 
-  if (isAlreadyAutoFilledToday()) {
-    // Sudah pernah isi hari ini, langsung return tanpa notifikasi
-    return;
-  }
+    const hour = nowWIB.getHours();
+    const minute = nowWIB.getMinutes();
 
-  const targetHour = 23;
-  const targetMinute = 0;
-  const targetSecond = 0;
+    console.log(`Cek auto-fill pada waktu WIB: ${hour}:${minute}`);
 
-  // Jika sekarang sudah lewat jam 09:48:00
-  if (
-    now.getHours() > targetHour ||
-    (now.getHours() === targetHour && now.getMinutes() >= targetMinute)
-  ) {
-    await autoFillAbsensiTidakHadir();
-    localStorage.setItem('autoFillAbsensiLastRun', now.toISOString().slice(0, 10));
-  } else {
-    // Atur timer sampai jam 09:48:00 hari ini
-    const target = new Date();
-    target.setHours(targetHour, targetMinute, targetSecond, 0);
-    const msUntilTarget = target.getTime() - now.getTime();
-
-    setTimeout(async () => {
-      if (!isAlreadyAutoFilledToday()) {
+    if (hour === 22 && minute === 0 && !hasRunToday) {
+      const alreadyFilled = await isAlreadyAutoFilledInDB();
+      console.log('Sudah auto-fill hari ini? ', alreadyFilled);
+      if (!alreadyFilled) {
+        console.log('Menjalankan autoFillAbsensiTidakHadir()...');
         await autoFillAbsensiTidakHadir();
-        localStorage.setItem('autoFillAbsensiLastRun', new Date().toISOString().slice(0, 10));
+      } else {
+        console.log('Auto-fill sudah dilakukan, tidak perlu ulang.');
       }
-    }, msUntilTarget);
+      hasRunToday = true;
+    }
+
+    // Reset flag jika sudah lewat jamnya (misalnya 13:28 ke atas)
+    if (hour !== 13 || minute !== 32) {
+      hasRunToday = false;
+    }
+  } catch (err) {
+    console.error('Error di runAutoFillIfNeeded:', err);
   }
 }
 
-// Jalankan saat halaman dimuat
-runAutoFillIfNeeded();
-
+// Cek tiap detik, tapi logika waktu longgar
+setInterval(() => {
+  runAutoFillIfNeeded().catch(console.error);
+}, 1000);
 
     // Add event listener for form edit submission
     document.getElementById('form-edit-checkout').addEventListener('submit', async (e) => {
@@ -586,11 +627,6 @@ if (existingAbsensi) {
         document.getElementById('popup-confirm-delete').classList.remove('show');
       }
     });
-    const alreadyFilledKey = `auto-fill-${now.toISOString().slice(0, 10)}`;
-if (!localStorage.getItem(alreadyFilledKey)) {
-  await autoFillAbsensiTidakHadir();
-  localStorage.setItem(alreadyFilledKey, 'true');
-}
 
   },
 
