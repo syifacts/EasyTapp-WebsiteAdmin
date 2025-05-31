@@ -187,39 +187,67 @@ data.forEach(item => {
   const attachActionListeners = () => {
     document.querySelectorAll('.edit-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const id = e.target.dataset.id;
-        const { data: item, error } = await supabase
-          .from('rfid_tag')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          alert('Gagal mengambil data: ' + error.message);
+        // Gunakan closest untuk mencari button terdekat jika user klik icon
+        const button = e.target.closest('.edit-btn');
+        const id = button ? button.dataset.id : null;
+        
+        // Validasi ID sebelum query ke database
+        if (!id || id === 'undefined') {
+          showPopup('ID tidak valid!', true);
           return;
         }
 
-        document.getElementById('edit-rfid-id').value = item.id;
-        document.getElementById('edit-rfid-tag').value = item.rfid_tag;
-        document.getElementById('edit-rfid-status').value = item.status;
+        try {
+          const { data: item, error } = await supabase
+            .from('rfid_tag')
+            .select('*')
+            .eq('id', parseInt(id, 10))
+            .single();
 
-        showModalEdit();
+          if (error) {
+            showPopup('Gagal mengambil data: ' + error.message, true);
+            return;
+          }
+
+          if (!item) {
+            showPopup('Data tidak ditemukan!', true);
+            return;
+          }
+
+          document.getElementById('edit-rfid-id').value = item.id;
+          document.getElementById('edit-rfid-tag').value = item.rfid_tag;
+          document.getElementById('edit-rfid-status').value = item.status;
+
+          showModalEdit();
+        } catch (err) {
+          showPopup('Terjadi kesalahan: ' + err.message, true);
+        }
       });
     });
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const id = e.target.dataset.id;
-        //if (!confirm('Yakin ingin menghapus?')) return;
+        // Gunakan closest untuk mencari button terdekat jika user klik icon
+        const button = e.target.closest('.delete-btn');
+        const id = button ? button.dataset.id : null;
+        
+        // Validasi ID sebelum query ke database
+        if (!id || id === 'undefined') {
+          showPopup('ID tidak valid!', true);
+          return;
+        }
 
-        const { error } = await supabase.from('rfid_tag').delete().eq('id', id);
-       if (error) {
-  showPopup('Gagal menghapus data!', true);
-} else {
-  showPopup('RFID berhasil dihapus!');
-  await loadRFID(currentPage);
-}
-
+        try {
+          const { error } = await supabase.from('rfid_tag').delete().eq('id', parseInt(id, 10));
+          if (error) {
+            showPopup('Gagal menghapus data!', true);
+          } else {
+            showPopup('RFID berhasil dihapus!');
+            await loadRFID(currentPage);
+          }
+        } catch (err) {
+          showPopup('Terjadi kesalahan: ' + err.message, true);
+        }
       });
     });
   };
