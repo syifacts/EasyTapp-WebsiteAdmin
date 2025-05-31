@@ -86,349 +86,370 @@ const rfidPage = {
           <button id="btn-next">Berikutnya</button>
         </div>
         <div id="popup-notif" class="popup-notif">
-  <span id="popup-message"></span>
-</div>
+          <span id="popup-message"></span>
+        </div>
       </section>
     `;
   },
 
-
-async afterRender() {
-  const isLoggedIn = localStorage.getItem('isloggedin') === 'true' || localStorage.getItem('isLoggedIn') === 'true';
-  if (!isLoggedIn) {
-    alert('Anda belum login!');
-    window.location.href = '/#/login';
-    return;
-  }
-
-  let currentPage = 1;
-  const itemsPerPage = 10;
-  let totalPages = 1;
-  const searchStatusInput = document.getElementById('search-status');
-
-  const modalTambah = document.getElementById('modal-tambah');
-  const modalEdit = document.getElementById('modal-edit');
-
-  const showModalTambah = () => modalTambah.classList.remove('hidden');
-  const hideModalTambah = () => {
-    modalTambah.classList.add('hidden');
-    document.getElementById('form-tambah').reset();
-  };
-
-  const showModalEdit = () => modalEdit.classList.remove('hidden');
-  const hideModalEdit = () => {
-    modalEdit.classList.add('hidden');
-    document.getElementById('form-edit').reset();
-  };
-  const showPopup = (message, isError = false) => {
-  const popup = document.getElementById('popup-notif');
-  const messageSpan = document.getElementById('popup-message');
-  popup.classList.remove('error');
-  popup.classList.add('show');
-  if (isError) popup.classList.add('error');
-  messageSpan.textContent = message;
-
-  setTimeout(() => {
-    popup.classList.remove('show');
-  }, 3000); // tampil 3 detik
-};
-
-
-  const loadRFID = async (page = 1) => {
-    const from = (page - 1) * itemsPerPage;
-    const to = from + itemsPerPage - 1;
-    const filterStatus = searchStatusInput.value;
-
-    let query = supabase
-      .from('rfid_tag')
-      .select('*', { count: 'exact' })
-      .range(from, to)
-      .order('id', { ascending: true });
-
-    if (filterStatus) {
-      query = query.eq('status', filterStatus);
-    }
-
-    const { data, error, count } = await query;
-    if (error) {
-      alert('Gagal memuat data: ' + error.message);
+  async afterRender() {
+    const isLoggedIn = localStorage.getItem('isloggedin') === 'true' || localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      alert('Anda belum login!');
+      window.location.href = '/#/login';
       return;
     }
 
-    totalPages = Math.ceil((count || 0) / itemsPerPage);
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let totalPages = 1;
+    const searchStatusInput = document.getElementById('search-status');
 
-    const tbody = document.getElementById('rfid-table-body');
-tbody.innerHTML = '';
-data.forEach(item => {
-  const tr = document.createElement('tr');
-  // Tambahkan class "assigned-row" jika status adalah assigned untuk styling visual
-  const rowClass = item.status === 'assigned' ? 'assigned-row' : '';
-  tr.className = rowClass;
-  
-  tr.innerHTML = `
-    <td>${item.id}</td>
-    <td>${item.rfid_tag}</td>
-    <td>${item.status}</td>
-    <td>
-      <button class="action-btn edit-btn ${item.status === 'assigned' ? 'disabled' : ''}" 
-              data-id="${item.id}" 
-              ${item.status === 'assigned' ? 'title="RFID dengan status Assigned tidak dapat diedit"' : ''}>
-        <i class="fa fa-edit"></i>
-      </button>
-      <button class="action-btn delete-btn" data-id="${item.id}">
-        <i class="fa fa-trash"></i>
-      </button>
-    </td>
-  `;
-  tbody.appendChild(tr);
-});
+    const modalTambah = document.getElementById('modal-tambah');
+    const modalEdit = document.getElementById('modal-edit');
 
-
-    document.getElementById('btn-prev').disabled = currentPage === 1;
-    document.getElementById('btn-next').disabled = currentPage >= totalPages || totalPages === 0;
-
-    attachActionListeners();
-  };
-
-  const attachActionListeners = () => {
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        // Gunakan closest untuk mencari button terdekat jika user klik icon
-        const button = e.target.closest('.edit-btn');
-        const id = button ? button.dataset.id : null;
-        
-        // Validasi ID sebelum query ke database
-        if (!id || id === 'undefined') {
-          showPopup('ID tidak valid!', true);
-          return;
-        }
-
-        try {
-          const { data: item, error } = await supabase
-            .from('rfid_tag')
-            .select('*')
-            .eq('id', parseInt(id, 10))
-            .single();
-
-          if (error) {
-            showPopup('Gagal mengambil data: ' + error.message, true);
-            return;
-          }
-
-          if (!item) {
-            showPopup('Data tidak ditemukan!', true);
-            return;
-          }
-
-          // Cek status RFID - hanya bisa edit jika status "available"
-          if (item.status === 'assigned') {
-            showPopup('RFID dengan status "Assigned" tidak dapat diedit!', true);
-            return;
-          }
-
-          document.getElementById('edit-rfid-id').value = item.id;
-          document.getElementById('edit-rfid-tag').value = item.rfid_tag;
-          document.getElementById('edit-rfid-status').value = item.status;
-
-          showModalEdit();
-        } catch (err) {
-          showPopup('Terjadi kesalahan: ' + err.message, true);
-        }
-      });
-    });
-
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        // Gunakan closest untuk mencari button terdekat jika user klik icon
-        const button = e.target.closest('.delete-btn');
-        const id = button ? button.dataset.id : null;
-        
-        // Validasi ID sebelum query ke database
-        if (!id || id === 'undefined') {
-          showPopup('ID tidak valid!', true);
-          return;
-        }
-
-        try {
-          const { error } = await supabase.from('rfid_tag').delete().eq('id', parseInt(id, 10));
-          if (error) {
-            showPopup('Gagal menghapus data!', true);
-          } else {
-            showPopup('RFID berhasil dihapus!');
-            await loadRFID(currentPage);
-          }
-        } catch (err) {
-          showPopup('Terjadi kesalahan: ' + err.message, true);
-        }
-      });
-    });
-  };
-
-  document.getElementById('btn-tambah').addEventListener('click', () => {
-    document.getElementById('form-tambah').reset();
-    showModalTambah();
-  });
-
-  document.getElementById('btn-cancel-tambah').addEventListener('click', () => {
-    hideModalTambah();
-  });
-
-  document.getElementById('btn-cancel-edit').addEventListener('click', () => {
-    hideModalEdit();
-  });
-
-  document.getElementById('form-tambah').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const idValue = document.getElementById('tambah-rfid-id').value.trim();
-    const rfidTag = document.getElementById('tambah-rfid-tag').value.trim();
-    const status = document.getElementById('tambah-rfid-status').value;
-
-    const { data: existingByTag, error: errorByTag } = await supabase
-      .from('rfid_tag')
-      .select('*')
-      .eq('rfid_tag', rfidTag)
-      .limit(1);
-
-    if (errorByTag) {
-      alert('Error validasi RFID Tag: ' + errorByTag.message);
-      return;
-    }
-
-    if (existingByTag && existingByTag.length > 0) {
-      alert(`RFID Tag "${rfidTag}" sudah ada, gunakan tag lain.`);
-      return;
-    }
-
-    const insertData = {
-      rfid_tag: rfidTag,
-      status: status
+    const showModalTambah = () => modalTambah.classList.remove('hidden');
+    const hideModalTambah = () => {
+      modalTambah.classList.add('hidden');
+      document.getElementById('form-tambah').reset();
     };
 
-    if (idValue !== '') {
-      const id = parseInt(idValue, 10);
-      const { data: existingById, error: errorById } = await supabase
+    const showModalEdit = () => modalEdit.classList.remove('hidden');
+    const hideModalEdit = () => {
+      modalEdit.classList.add('hidden');
+      document.getElementById('form-edit').reset();
+    };
+
+    const showPopup = (message, isError = false) => {
+      const popup = document.getElementById('popup-notif');
+      const messageSpan = document.getElementById('popup-message');
+      popup.classList.remove('error');
+      popup.classList.add('show');
+      if (isError) popup.classList.add('error');
+      messageSpan.textContent = message;
+
+      setTimeout(() => {
+        popup.classList.remove('show');
+      }, 3000); // tampil 3 detik
+    };
+
+    const loadRFID = async (page = 1) => {
+      const from = (page - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+      const filterStatus = searchStatusInput.value;
+
+      let query = supabase
         .from('rfid_tag')
-        .select('*')
-        .eq('id', id)
-        .limit(1);
-
-      if (errorById) {
-        alert('Error validasi ID: ' + errorById.message);
-        return;
-      }
-
-      if (existingById && existingById.length > 0) {
-        alert(`ID "${id}" sudah ada, gunakan ID lain atau kosongkan.`);
-        return;
-      }
-
-      insertData.id = id;
-    } else {
-      // Cari ID terkecil yang belum dipakai
-      const { data: allIDs, error: fetchErr } = await supabase
-        .from('rfid_tag')
-        .select('id')
+        .select('*', { count: 'exact' })
+        .range(from, to)
         .order('id', { ascending: true });
 
-      if (fetchErr) {
-        alert('Gagal mencari ID unik: ' + fetchErr.message);
+      if (filterStatus) {
+        query = query.eq('status', filterStatus);
+      }
+
+      const { data, error, count } = await query;
+      if (error) {
+        alert('Gagal memuat data: ' + error.message);
         return;
       }
 
-      const usedIds = new Set(allIDs.map(item => item.id));
-      let newId = 1;
-      while (usedIds.has(newId)) newId++;
-      insertData.id = newId;
-    }
+      totalPages = Math.ceil((count || 0) / itemsPerPage);
 
-    const { error: insertError } = await supabase
-      .from('rfid_tag')
-      .insert([insertData]);
+      const tbody = document.getElementById('rfid-table-body');
+      tbody.innerHTML = '';
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        // Tambahkan class "assigned-row" jika status adalah assigned untuk styling visual
+        const rowClass = item.status === 'assigned' ? 'assigned-row' : '';
+        tr.className = rowClass;
+        
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td>${item.rfid_tag}</td>
+          <td>${item.status}</td>
+          <td>
+            <button class="action-btn edit-btn ${item.status === 'assigned' ? 'disabled' : ''}" 
+                    data-id="${item.id}" 
+                    ${item.status === 'assigned' ? 'title="RFID dengan status Assigned tidak dapat diedit"' : ''}>
+              <i class="fa fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn ${item.status === 'assigned' ? 'disabled' : ''}" 
+                    data-id="${item.id}"
+                    ${item.status === 'assigned' ? 'title="RFID dengan status Assigned tidak dapat dihapus"' : ''}>
+              <i class="fa fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-    if (insertError) {
-      alert('Gagal menambahkan data: ' + insertError.message);
-      return;
-    }
-hideModalTambah();
-showPopup('RFID berhasil ditambahkan!');
-await loadRFID(currentPage);
+      document.getElementById('btn-prev').disabled = currentPage === 1;
+      document.getElementById('btn-next').disabled = currentPage >= totalPages || totalPages === 0;
 
-  });
+      attachActionListeners();
+    };
 
-  document.getElementById('form-edit').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    const attachActionListeners = () => {
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          // Gunakan closest untuk mencari button terdekat jika user klik icon
+          const button = e.target.closest('.edit-btn');
+          const id = button ? button.dataset.id : null;
+          
+          // Validasi ID sebelum query ke database
+          if (!id || id === 'undefined') {
+            showPopup('ID tidak valid!', true);
+            return;
+          }
 
-    const idRaw = document.getElementById('edit-rfid-id').value;
-const id = parseInt(idRaw, 10);
+          try {
+            const { data: item, error } = await supabase
+              .from('rfid_tag')
+              .select('*')
+              .eq('id', parseInt(id, 10))
+              .single();
 
-if (!idRaw || isNaN(id)) {
-  alert('ID tidak valid. Tidak dapat memperbarui data.');
-  return;
-}
+            if (error) {
+              showPopup('Gagal mengambil data: ' + error.message, true);
+              return;
+            }
 
-    const rfidTag = document.getElementById('edit-rfid-tag').value.trim();
-    const status = document.getElementById('edit-rfid-status').value;
+            if (!item) {
+              showPopup('Data tidak ditemukan!', true);
+              return;
+            }
 
-    const { data: existing, error: err } = await supabase
-      .from('rfid_tag')
-      .select('*')
-      .eq('rfid_tag', rfidTag);
+            // Cek status RFID - hanya bisa edit jika status "available"
+            if (item.status === 'assigned') {
+              showPopup('RFID dengan status "Assigned" tidak dapat diedit!', true);
+              return;
+            }
 
-    if (err) {
-      alert('Error validasi RFID Tag: ' + err.message);
-      return;
-    }
+            document.getElementById('edit-rfid-id').value = item.id;
+            document.getElementById('edit-rfid-tag').value = item.rfid_tag;
+            document.getElementById('edit-rfid-status').value = item.status;
 
-    if (existing.some(item => item.id !== id)) {
-      alert(`RFID Tag "${rfidTag}" sudah dipakai oleh ID lain.`);
-      return;
-    }
+            showModalEdit();
+          } catch (err) {
+            showPopup('Terjadi kesalahan: ' + err.message, true);
+          }
+        });
+      });
 
-    const { error } = await supabase
-      .from('rfid_tag')
-      .update({ rfid_tag: rfidTag, status })
-      .eq('id', id);
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          // Gunakan closest untuk mencari button terdekat jika user klik icon
+          const button = e.target.closest('.delete-btn');
+          const id = button ? button.dataset.id : null;
+          
+          // Validasi ID sebelum query ke database
+          if (!id || id === 'undefined') {
+            showPopup('ID tidak valid!', true);
+            return;
+          }
 
+          try {
+            // Cek status RFID sebelum menghapus
+            const { data: item, error: fetchError } = await supabase
+              .from('rfid_tag')
+              .select('*')
+              .eq('id', parseInt(id, 10))
+              .single();
+
+            if (fetchError) {
+              showPopup('Gagal mengambil data: ' + fetchError.message, true);
+              return;
+            }
+
+            if (!item) {
+              showPopup('Data tidak ditemukan!', true);
+              return;
+            }
+
+            // Cek status RFID - tidak bisa hapus jika status "assigned"
+            if (item.status === 'assigned') {
+              showPopup('RFID dengan status "Assigned" tidak dapat dihapus!', true);
+              return;
+            }
+
+
+            const { error } = await supabase.from('rfid_tag').delete().eq('id', parseInt(id, 10));
+            if (error) {
+              showPopup('Gagal menghapus data!', true);
+            } else {
+              showPopup('RFID berhasil dihapus!');
+              await loadRFID(currentPage);
+            }
+          } catch (err) {
+            showPopup('Terjadi kesalahan: ' + err.message, true);
+          }
+        });
+      });
+    };
+
+    document.getElementById('btn-tambah').addEventListener('click', () => {
+      document.getElementById('form-tambah').reset();
+      showModalTambah();
+    });
+
+    document.getElementById('btn-cancel-tambah').addEventListener('click', () => {
+      hideModalTambah();
+    });
+
+    document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+      hideModalEdit();
+    });
+
+    document.getElementById('form-tambah').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const idValue = document.getElementById('tambah-rfid-id').value.trim();
+      const rfidTag = document.getElementById('tambah-rfid-tag').value.trim();
+      const status = document.getElementById('tambah-rfid-status').value;
+
+      const { data: existingByTag, error: errorByTag } = await supabase
+        .from('rfid_tag')
+        .select('*')
+        .eq('rfid_tag', rfidTag)
+        .limit(1);
+
+      if (errorByTag) {
+        alert('Error validasi RFID Tag: ' + errorByTag.message);
+        return;
+      }
+
+      if (existingByTag && existingByTag.length > 0) {
+        alert(`RFID Tag "${rfidTag}" sudah ada, gunakan tag lain.`);
+        return;
+      }
+
+      const insertData = {
+        rfid_tag: rfidTag,
+        status: status
+      };
+
+      if (idValue !== '') {
+        const id = parseInt(idValue, 10);
+        const { data: existingById, error: errorById } = await supabase
+          .from('rfid_tag')
+          .select('*')
+          .eq('id', id)
+          .limit(1);
+
+        if (errorById) {
+          alert('Error validasi ID: ' + errorById.message);
+          return;
+        }
+
+        if (existingById && existingById.length > 0) {
+          alert(`ID "${id}" sudah ada, gunakan ID lain atau kosongkan.`);
+          return;
+        }
+
+        insertData.id = id;
+      } else {
+        // Cari ID terkecil yang belum dipakai
+        const { data: allIDs, error: fetchErr } = await supabase
+          .from('rfid_tag')
+          .select('id')
+          .order('id', { ascending: true });
+
+        if (fetchErr) {
+          alert('Gagal mencari ID unik: ' + fetchErr.message);
+          return;
+        }
+
+        const usedIds = new Set(allIDs.map(item => item.id));
+        let newId = 1;
+        while (usedIds.has(newId)) newId++;
+        insertData.id = newId;
+      }
+
+      const { error: insertError } = await supabase
+        .from('rfid_tag')
+        .insert([insertData]);
+
+      if (insertError) {
+        alert('Gagal menambahkan data: ' + insertError.message);
+        return;
+      }
       
-    if (error) {
-      alert('Gagal update data: ' + error.message);
-      return;
-    }
-hideModalEdit();
-showPopup('RFID berhasil diperbarui!');
-await loadRFID(currentPage);
+      hideModalTambah();
+      showPopup('RFID berhasil ditambahkan!');
+      await loadRFID(currentPage);
+    });
 
-  });
+    document.getElementById('form-edit').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  document.getElementById('btn-prev').addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
+      const idRaw = document.getElementById('edit-rfid-id').value;
+      const id = parseInt(idRaw, 10);
+
+      if (!idRaw || isNaN(id)) {
+        alert('ID tidak valid. Tidak dapat memperbarui data.');
+        return;
+      }
+
+      const rfidTag = document.getElementById('edit-rfid-tag').value.trim();
+      const status = document.getElementById('edit-rfid-status').value;
+
+      const { data: existing, error: err } = await supabase
+        .from('rfid_tag')
+        .select('*')
+        .eq('rfid_tag', rfidTag);
+
+      if (err) {
+        alert('Error validasi RFID Tag: ' + err.message);
+        return;
+      }
+
+      if (existing.some(item => item.id !== id)) {
+        alert(`RFID Tag "${rfidTag}" sudah dipakai oleh ID lain.`);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('rfid_tag')
+        .update({ rfid_tag: rfidTag, status })
+        .eq('id', id);
+
+      if (error) {
+        alert('Gagal update data: ' + error.message);
+        return;
+      }
+      
+      hideModalEdit();
+      showPopup('RFID berhasil diperbarui!');
+      await loadRFID(currentPage);
+    });
+
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadRFID(currentPage);
+      }
+    });
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadRFID(currentPage);
+      }
+    });
+
+    searchStatusInput.addEventListener('change', () => {
+      currentPage = 1;
       loadRFID(currentPage);
-    }
-  });
+    });
 
-  document.getElementById('btn-next').addEventListener('click', () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      loadRFID(currentPage);
-    }
-  });
+    window.addEventListener('click', (e) => {
+      if (e.target === modalTambah) hideModalTambah();
+      if (e.target === modalEdit) hideModalEdit();
+    });
 
-  searchStatusInput.addEventListener('change', () => {
-    currentPage = 1;
     loadRFID(currentPage);
-  });
-
-  window.addEventListener('click', (e) => {
-    if (e.target === modalTambah) hideModalTambah();
-    if (e.target === modalEdit) hideModalEdit();
-  });
-
-  loadRFID(currentPage);
-  
-}
-
+  }
 };
 
 export default rfidPage;
