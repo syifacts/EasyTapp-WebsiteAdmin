@@ -161,12 +161,18 @@ async afterRender() {
 tbody.innerHTML = '';
 data.forEach(item => {
   const tr = document.createElement('tr');
+  // Tambahkan class "assigned-row" jika status adalah assigned untuk styling visual
+  const rowClass = item.status === 'assigned' ? 'assigned-row' : '';
+  tr.className = rowClass;
+  
   tr.innerHTML = `
     <td>${item.id}</td>
     <td>${item.rfid_tag}</td>
     <td>${item.status}</td>
     <td>
-      <button class="action-btn edit-btn" data-id="${item.id}">
+      <button class="action-btn edit-btn ${item.status === 'assigned' ? 'disabled' : ''}" 
+              data-id="${item.id}" 
+              ${item.status === 'assigned' ? 'title="RFID dengan status Assigned tidak dapat diedit"' : ''}>
         <i class="fa fa-edit"></i>
       </button>
       <button class="action-btn delete-btn" data-id="${item.id}">
@@ -211,6 +217,12 @@ data.forEach(item => {
 
           if (!item) {
             showPopup('Data tidak ditemukan!', true);
+            return;
+          }
+
+          // Cek status RFID - hanya bisa edit jika status "available"
+          if (item.status === 'assigned') {
+            showPopup('RFID dengan status "Assigned" tidak dapat diedit!', true);
             return;
           }
 

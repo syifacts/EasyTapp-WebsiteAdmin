@@ -1161,3 +1161,15 @@ select {
 .popup.hidden {
   display: none;
 }
+.action-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.assigned-row {
+  background-color: #f8f9fa;
+}
+
+.assigned-row td {
+  color: #6c757d;
+}
