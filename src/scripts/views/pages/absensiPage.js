@@ -631,27 +631,30 @@ if (existingAbsensi) {
   },
 
   showPopup(message, type = 'success') {
-    const popup = document.getElementById('popup-absensi');
-    const popupMessage = document.getElementById('popup-message');
-    const btnClosePopup = document.getElementById('btn-close-popup');
+  const popup = document.getElementById('popup-absensi');
+  const popupMessage = document.getElementById('popup-message');
+  const btnClosePopup = document.getElementById('btn-close-popup');
 
-    popup.classList.add('show');
-    popupMessage.textContent = message;
-    
-    // Reset classes and add the correct one
-    popup.classList.remove('success', 'error');
-    popup.classList.add(type === 'error' ? 'error' : 'success');
-
-    btnClosePopup.addEventListener('click', () => {
-      popup.classList.remove('show');
-    });
-    
-    // Auto-hide after 3 seconds
-    setTimeout(() => {
-      popup.classList.remove('show');
-    }, 3000);
+  if (!popup || !popupMessage || !btnClosePopup) {
+    console.error('Elemen popup tidak ditemukan!');
+    return;
   }
+
+  popup.classList.add('show');
+  popupMessage.textContent = message;
   
+  popup.classList.remove('success', 'error');
+  popup.classList.add(type === 'error' ? 'error' : 'success');
+
+  btnClosePopup.addEventListener('click', () => {
+    popup.classList.remove('show');
+  });
+  
+  setTimeout(() => {
+    popup.classList.remove('show');
+  }, 3000);
+}
+
 };
 
 export default absensiPage;

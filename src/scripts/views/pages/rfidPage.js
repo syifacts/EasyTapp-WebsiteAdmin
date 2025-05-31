@@ -319,7 +319,14 @@ await loadRFID(currentPage);
   document.getElementById('form-edit').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const id = parseInt(document.getElementById('edit-rfid-id').value, 10);
+    const idRaw = document.getElementById('edit-rfid-id').value;
+const id = parseInt(idRaw, 10);
+
+if (!idRaw || isNaN(id)) {
+  alert('ID tidak valid. Tidak dapat memperbarui data.');
+  return;
+}
+
     const rfidTag = document.getElementById('edit-rfid-tag').value.trim();
     const status = document.getElementById('edit-rfid-status').value;
 
@@ -343,6 +350,7 @@ await loadRFID(currentPage);
       .update({ rfid_tag: rfidTag, status })
       .eq('id', id);
 
+      
     if (error) {
       alert('Gagal update data: ' + error.message);
       return;
